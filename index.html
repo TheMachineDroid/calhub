@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CalcHub – Free Online Calculators</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --card: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #00e5a0;
+    --accent2: #7c6bff;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #f0f0f8;
+    --muted: #7a7a9a;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -20%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(124,107,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0,229,160,0.09) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.8rem;
+    letter-spacing: -1px;
+  }
+  .logo span { color: var(--accent); }
+  .tagline {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-top: 8px;
+    font-weight: 300;
+  }
+
+  /* Nav Tabs */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 20px 40px;
+    position: relative;
+    z-index: 10;
+  }
+  .tab {
+    padding: 9px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab:hover { border-color: var(--accent); color: var(--text); }
+  .tab.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Main */
+  main {
+    position: relative;
+    z-index: 10;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* Calculator Cards */
+  .calc-panel { display: none; animation: fadeUp 0.35s ease; }
+  .calc-panel.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .calc-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px;
+    margin-bottom: 24px;
+  }
+
+  .calc-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .calc-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+  }
+
+  /* Form elements */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    transition: border 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--accent);
+  }
+  select option { background: var(--surface); }
+
+  /* Toggle (gender etc) */
+  .toggle-group {
+    display: flex;
+    gap: 8px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .toggle-btn.selected {
+    border-color: var(--accent2);
+    background: rgba(124,107,255,0.15);
+    color: var(--text);
+  }
+
+  /* Slider */
+  .slider-wrap { position: relative; }
+  .slider-val {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    border: none;
+    padding: 0;
+    margin-top: 10px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0,229,160,0.4);
+  }
+
+  /* Button */
+  .calc-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .calc-btn:hover { background: #00ffb3; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,229,160,0.25); }
+  .calc-btn:active { transform: translateY(0); }
+
+  /* Result Box */
+  .result-box {
+    margin-top: 24px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .result-box.show { display: block; }
+  .result-main {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .result-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .result-item {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid var(--border);
+  }
+  .result-item .val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  .result-item .lbl {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+  .badge.green { background: rgba(0,229,160,0.15); color: var(--accent); }
+  .badge.yellow { background: rgba(255,209,102,0.15); color: var(--accent4); }
+  .badge.red { background: rgba(255,107,107,0.15); color: var(--accent3); }
+  .badge.purple { background: rgba(124,107,255,0.15); color: var(--accent2); }
+
+  /* Info tips */
+  .info-tip {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: rgba(124,107,255,0.08);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .info-tip strong { color: var(--text); }
+
+  /* SEO tip section */
+  .seo-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-top: 40px;
+    text-align: center;
+  }
+  .seo-strip h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .seo-strip p { font-size: 0.9rem; color: var(--muted); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    position: relative;
+    z-index: 10;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr; }
+    .calc-card { padding: 24px; }
+    .logo { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Calc<span>Hub</span></div>
+  <p class="tagline">Free, fast, and accurate calculators — no sign-up required</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showCalc('bmi')">⚖️ BMI</button>
+  <button class="tab" onclick="showCalc('calorie')">🔥 Calories</button>
+  <button class="tab" onclick="showCalc('loan')">💰 Loan</button>
+  <button class="tab" onclick="showCalc('age')">🎂 Age</button>
+  <button class="tab" onclick="showCalc('percent')">📊 Percentage</button>
+  <button class="tab" onclick="showCalc('tip')">🍽️ Tip</button>
+  <button class="tab" onclick="showCalc('savings')">🏦 Savings</button>
+</div>
+
+<main>
+
+  <!-- BMI CALCULATOR -->
+  <div class="calc-panel active" id="calc-bmi">
+    <div class="calc-card">
+      <div class="calc-title">BMI Calculator</div>
+      <div class="calc-desc">Calculate your Body Mass Index and understand what it means for your health.</div>
+
+      <div class="form-row single">
+        <div>
+          <label>Unit System</label>
+          <div class="toggle-group">
+            <div class="toggle-btn selected" id="bmi-metric" onclick="setBmiUnit('metric')">Metric (kg/cm)</div>
+            <div class="toggle-btn" id="bmi-imperial" onclick="setBmiUnit('imperial')">Imperial (lb/in)</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Gender</label>
+          <div class="toggle-group">
+            <div class="toggle-btn selected" id="bmi-male" onclick="setGender('male')">♂ Male</div>
+            <div class="toggle-btn" id="bmi-female" onclick="setGender('female')">♀ Female</div>
+          </div>
+        </div>
+        <div>
+          <label>Age</label>
+          <input type="number" id="bmi-age" placeholder="e.g. 28" min="2" max="120">
+        </div>
+      </div>
+      <div class="form-row" id="bmi-metric-fields">
+        <div>
+          <label>Height (cm)</label>
+          <input type="number" id="bmi-height-cm" placeholder="e.g. 170">
+        </div>
+        <div>
+          <label>Weight (kg)</label>
+          <input type="number" id="bmi-weight-kg" placeholder="e.g. 68">
+        </div>
+      </div>
+      <div class="form-row" id="bmi-imperial-fields" style="display:none">
+        <div>
+          <label>Height (inches)</label>
+          <input type="number" id="bmi-height-in" placeholder="e.g. 67">
+        </div>
+        <div>
+          <label>Weight (lbs)</label>
+          <input type="number" id="bmi-weight-lb" placeholder="e.g. 150">
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="calcBMI()">Calculate BMI</button>
+
+      <div class="result-box" id="bmi-result">
+        <div class="result-main" id="bmi-val">—</div>
+        <div class="result-label">Your BMI Score</div>
+        <div id="bmi-badge"></div>
+        <div class="result-grid" id="bmi-grid"></div>
+        <div class="info-tip" id="bmi-tip"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALORIE CALCULATOR -->
+  <div class="calc-panel" id="calc-calorie">
+    <div class="calc-card">
+      <div class="calc-title">Daily Calorie Calculator</div>
+      <div class="calc-desc">Find out how many calories you need each day based on your body and activity level.</div>
+
+      <div class="form-row">
+        <div>
+          <label>Gender</label>
+          <div class="toggle-group">
+            <div class="toggle-btn selected" id="cal-male" onclick="setCalGender('male')">♂ Male</div>
+            <div class="toggle-btn" id="cal-female" onclick="setCalGender('female')">♀ Female</div>
+          </div>
+        </div>
+        <div>
+          <label>Age</label>
+          <input type="number" id="cal-age" placeholder="e.g. 28">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Height (cm)</label>
+          <input type="number" id="cal-height" placeholder="e.g. 170">
+        </div>
+        <div>
+          <label>Weight (kg)</label>
+          <input type="number" id="cal-weight" placeholder="e.g. 70">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div>
+          <label>Activity Level</label>
+          <select id="cal-activity">
+            <option value="1.2">Sedentary (little or no exercise)</option>
+            <option value="1.375">Lightly active (1–3 days/week)</option>
+            <option value="1.55" selected>Moderately active (3–5 days/week)</option>
+            <option value="1.725">Very active (6–7 days/week)</option>
+            <option value="1.9">Super active (athlete / physical job)</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcCalorie()">Calculate Calories</button>
+
+      <div class="result-box" id="cal-result">
+        <div class="result-main" id="cal-val">—</div>
+        <div class="result-label">Maintenance Calories (calories/day)</div>
+        <div class="result-grid" id="cal-grid"></div>
+        <div class="info-tip">
+          <strong>💡 Pro tip:</strong> To lose 0.5 kg/week, eat ~500 calories below maintenance. To gain 0.5 kg/week, eat ~500 above. Always consult a nutritionist for personalized advice.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAN CALCULATOR -->
+  <div class="calc-panel" id="calc-loan">
+    <div class="calc-card">
+      <div class="calc-title">Loan / EMI Calculator</div>
+      <div class="calc-desc">Calculate monthly payments, total interest, and the full cost of any loan.</div>
+
+      <div class="form-row">
+        <div>
+          <label>Loan Amount ($)</label>
+          <input type="number" id="loan-amount" placeholder="e.g. 20000">
+        </div>
+        <div>
+          <label>Annual Interest Rate (%)</label>
+          <input type="number" id="loan-rate" placeholder="e.g. 7.5" step="0.1">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div>
+          <label>Loan Term</label>
+          <select id="loan-term">
+            <option value="12">1 year</option>
+            <option value="24">2 years</option>
+            <option value="36">3 years</option>
+            <option value="48">4 years</option>
+            <option value="60" selected>5 years</option>
+            <option value="84">7 years</option>
+            <option value="120">10 years</option>
+            <option value="180">15 years</option>
+            <option value="240">20 years</option>
+            <option value="360">30 years</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcLoan()">Calculate Loan</button>
+
+      <div class="result-box" id="loan-result">
+        <div class="result-main" id="loan-monthly">—</div>
+        <div class="result-label">Monthly Payment (EMI)</div>
+        <div class="result-grid" id="loan-grid"></div>
+        <div class="info-tip">
+          <strong>💡 Save money:</strong> Making one extra payment per year can save you thousands in interest and shorten your loan significantly.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGE CALCULATOR -->
+  <div class="calc-panel" id="calc-age">
+    <div class="calc-card">
+      <div class="calc-title">Age Calculator</div>
+      <div class="calc-desc">Find your exact age in years, months, days — and fun facts about your life!</div>
+
+      <div class="form-row">
+        <div>
+          <label>Your Date of Birth</label>
+          <input type="date" id="age-dob">
+        </div>
+        <div>
+          <label>Calculate Age On</label>
+          <input type="date" id="age-to">
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcAge()">Calculate Age</button>
+
+      <div class="result-box" id="age-result">
+        <div class="result-main" id="age-val">—</div>
+        <div class="result-label">Your Exact Age</div>
+        <div class="result-grid" id="age-grid"></div>
+        <div class="info-tip" id="age-tip"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERCENTAGE CALCULATOR -->
+  <div class="calc-panel" id="calc-percent">
+    <div class="calc-card">
+      <div class="calc-title">Percentage Calculator</div>
+      <div class="calc-desc">Three calculators in one — everything you need for percentages.</div>
+
+      <!-- P1 -->
+      <div style="margin-bottom:28px; padding-bottom:28px; border-bottom:1px solid var(--border)">
+        <div style="font-family:'Syne',sans-serif; font-weight:600; margin-bottom:14px; font-size:0.95rem;">What is X% of Y?</div>
+        <div class="form-row">
+          <div><label>Percentage (%)</label><input type="number" id="p1-pct" placeholder="e.g. 15"></div>
+          <div><label>Of Number</label><input type="number" id="p1-num" placeholder="e.g. 200"></div>
+        </div>
+        <button class="calc-btn" onclick="calcP1()" style="margin-top:8px">Calculate</button>
+        <div class="result-box" id="p1-result" style="margin-top:12px">
+          <div class="result-main" id="p1-val">—</div>
+          <div class="result-label" id="p1-label"></div>
+        </div>
+      </div>
+
+      <!-- P2 -->
+      <div style="margin-bottom:28px; padding-bottom:28px; border-bottom:1px solid var(--border)">
+        <div style="font-family:'Syne',sans-serif; font-weight:600; margin-bottom:14px; font-size:0.95rem;">X is what % of Y?</div>
+        <div class="form-row">
+          <div><label>Value (X)</label><input type="number" id="p2-x" placeholder="e.g. 30"></div>
+          <div><label>Total (Y)</label><input type="number" id="p2-y" placeholder="e.g. 200"></div>
+        </div>
+        <button class="calc-btn" onclick="calcP2()" style="margin-top:8px">Calculate</button>
+        <div class="result-box" id="p2-result" style="margin-top:12px">
+          <div class="result-main" id="p2-val">—</div>
+          <div class="result-label" id="p2-label"></div>
+        </div>
+      </div>
+
+      <!-- P3 -->
+      <div>
+        <div style="font-family:'Syne',sans-serif; font-weight:600; margin-bottom:14px; font-size:0.95rem;">Percentage Change (Increase / Decrease)</div>
+        <div class="form-row">
+          <div><label>From Value</label><input type="number" id="p3-from" placeholder="e.g. 100"></div>
+          <div><label>To Value</label><input type="number" id="p3-to" placeholder="e.g. 135"></div>
+        </div>
+        <button class="calc-btn" onclick="calcP3()" style="margin-top:8px">Calculate Change</button>
+        <div class="result-box" id="p3-result" style="margin-top:12px">
+          <div class="result-main" id="p3-val">—</div>
+          <div class="result-label" id="p3-label"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIP CALCULATOR -->
+  <div class="calc-panel" id="calc-tip">
+    <div class="calc-card">
+      <div class="calc-title">Tip Calculator</div>
+      <div class="calc-desc">Split the bill and calculate the perfect tip for any size group.</div>
+
+      <div class="form-row">
+        <div>
+          <label>Bill Amount ($)</label>
+          <input type="number" id="tip-bill" placeholder="e.g. 85.50" step="0.01">
+        </div>
+        <div>
+          <label>Number of People</label>
+          <input type="number" id="tip-people" placeholder="e.g. 4" min="1" value="1">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div>
+          <label>Tip Percentage: <span id="tip-pct-label" style="color:var(--accent)">18%</span></label>
+          <div class="slider-wrap">
+            <input type="range" id="tip-pct" min="0" max="50" value="18" oninput="document.getElementById('tip-pct-label').textContent=this.value+'%'">
+          </div>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcTip()">Calculate Tip</button>
+
+      <div class="result-box" id="tip-result">
+        <div class="result-main" id="tip-val">—</div>
+        <div class="result-label">Total Per Person</div>
+        <div class="result-grid" id="tip-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVINGS CALCULATOR -->
+  <div class="calc-panel" id="calc-savings">
+    <div class="calc-card">
+      <div class="calc-title">Savings Growth Calculator</div>
+      <div class="calc-desc">See how your savings grow over time with compound interest. Watch your money work for you!</div>
+
+      <div class="form-row">
+        <div>
+          <label>Initial Savings ($)</label>
+          <input type="number" id="sav-initial" placeholder="e.g. 5000">
+        </div>
+        <div>
+          <label>Monthly Contribution ($)</label>
+          <input type="number" id="sav-monthly" placeholder="e.g. 200">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Annual Interest Rate (%)</label>
+          <input type="number" id="sav-rate" placeholder="e.g. 7" step="0.1">
+        </div>
+        <div>
+          <label>Years to Grow</label>
+          <select id="sav-years">
+            <option value="1">1 year</option>
+            <option value="3">3 years</option>
+            <option value="5">5 years</option>
+            <option value="10" selected>10 years</option>
+            <option value="15">15 years</option>
+            <option value="20">20 years</option>
+            <option value="30">30 years</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcSavings()">Calculate Growth</button>
+
+      <div class="result-box" id="sav-result">
+        <div class="result-main" id="sav-val">—</div>
+        <div class="result-label">Total Value at End</div>
+        <div class="result-grid" id="sav-grid"></div>
+        <div class="info-tip">
+          <strong>💡 The 8th Wonder:</strong> Compound interest is the most powerful force in personal finance. Starting early — even with small amounts — makes an enormous difference over time.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monetization tip strip -->
+  <div class="seo-strip">
+    <h3>🚀 High-Traffic Niches</h3>
+    <p>This calculator covers: <strong>BMI · Calorie · Loan · Age · Percentage · Tip · Savings</strong> — all of the most-searched calculator types on Google. Deploy this for free on GitHub Pages, Netlify, or Vercel.</p>
+  </div>
+
+</main>
+
+<footer>
+  © 2026 CalcHub · Free Online Calculators · No Sign-up Required
+</footer>
+
+<script>
+// ===== STATE =====
+let bmiUnit = 'metric';
+let bmiGender = 'male';
+let calGender = 'male';
+
+// ===== TABS =====
+function showCalc(id) {
+  document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('calc-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== BMI =====
+function setBmiUnit(u) {
+  bmiUnit = u;
+  document.getElementById('bmi-metric').classList.toggle('selected', u === 'metric');
+  document.getElementById('bmi-imperial').classList.toggle('selected', u === 'imperial');
+  document.getElementById('bmi-metric-fields').style.display = u === 'metric' ? 'grid' : 'none';
+  document.getElementById('bmi-imperial-fields').style.display = u === 'imperial' ? 'grid' : 'none';
+}
+function setGender(g) {
+  bmiGender = g;
+  document.getElementById('bmi-male').classList.toggle('selected', g === 'male');
+  document.getElementById('bmi-female').classList.toggle('selected', g === 'female');
+}
+
+function calcBMI() {
+  let h, w;
+  if (bmiUnit === 'metric') {
+    h = parseFloat(document.getElementById('bmi-height-cm').value) / 100;
+    w = parseFloat(document.getElementById('bmi-weight-kg').value);
+  } else {
+    const hin = parseFloat(document.getElementById('bmi-height-in').value);
+    const wlb = parseFloat(document.getElementById('bmi-weight-lb').value);
+    h = hin * 0.0254;
+    w = wlb * 0.453592;
+  }
+  if (!h || !w || h <= 0) return alert('Please enter valid height and weight.');
+
+  const bmi = w / (h * h);
+  const age = parseInt(document.getElementById('bmi-age').value) || 30;
+
+  let cat, badgeClass, tip;
+  if (bmi < 18.5) {
+    cat = 'Underweight'; badgeClass = 'yellow';
+    tip = '<strong>Underweight</strong> can indicate nutritional deficiency. Consider increasing caloric intake with whole foods and consulting a doctor.';
+  } else if (bmi < 25) {
+    cat = 'Normal Weight ✓'; badgeClass = 'green';
+    tip = '<strong>Great!</strong> A BMI in this range is associated with the lowest health risks. Maintain a balanced diet and regular physical activity.';
+  } else if (bmi < 30) {
+    cat = 'Overweight'; badgeClass = 'yellow';
+    tip = '<strong>Slightly overweight.</strong> Even losing 5–10% of body weight can significantly reduce health risks. Small, consistent changes make a big difference.';
+  } else {
+    cat = 'Obese'; badgeClass = 'red';
+    tip = '<strong>Obesity</strong> is linked to increased risk of heart disease, diabetes, and other conditions. Consulting a healthcare provider is strongly recommended.';
+  }
+
+  const idealMin = (18.5 * h * h).toFixed(1);
+  const idealMax = (24.9 * h * h).toFixed(1);
+  const wUnit = bmiUnit === 'metric' ? 'kg' : 'lbs';
+  const idealMinDisp = bmiUnit === 'metric' ? idealMin : (idealMin / 0.453592).toFixed(1);
+  const idealMaxDisp = bmiUnit === 'metric' ? idealMax : (idealMax / 0.453592).toFixed(1);
+
+  document.getElementById('bmi-val').textContent = bmi.toFixed(1);
+  document.getElementById('bmi-badge').innerHTML = `<span class="badge ${badgeClass}">${cat}</span>`;
+  document.getElementById('bmi-grid').innerHTML = `
+    <div class="result-item"><div class="val">${idealMinDisp}–${idealMaxDisp} ${wUnit}</div><div class="lbl">Ideal Weight Range</div></div>
+    <div class="result-item"><div class="val">${bmiUnit === 'metric' ? w.toFixed(1) + ' kg' : (w / 0.453592).toFixed(1) + ' lbs'}</div><div class="lbl">Your Weight</div></div>
+    <div class="result-item"><div class="val">${age} yrs</div><div class="lbl">Your Age</div></div>
+  `;
+  document.getElementById('bmi-tip').innerHTML = tip;
+  document.getElementById('bmi-result').classList.add('show');
+}
+
+// ===== CALORIE =====
+function setCalGender(g) {
+  calGender = g;
+  document.getElementById('cal-male').classList.toggle('selected', g === 'male');
+  document.getElementById('cal-female').classList.toggle('selected', g === 'female');
+}
+function calcCalorie() {
+  const age = parseFloat(document.getElementById('cal-age').value);
+  const h = parseFloat(document.getElementById('cal-height').value);
+  const w = parseFloat(document.getElementById('cal-weight').value);
+  const act = parseFloat(document.getElementById('cal-activity').value);
+  if (!age || !h || !w) return alert('Please fill in all fields.');
+
+  let bmr;
+  if (calGender === 'male') bmr = 10 * w + 6.25 * h - 5 * age + 5;
+  else bmr = 10 * w + 6.25 * h - 5 * age - 161;
+
+  const maintenance = Math.round(bmr * act);
+  document.getElementById('cal-val').textContent = maintenance.toLocaleString();
+  document.getElementById('cal-grid').innerHTML = `
+    <div class="result-item"><div class="val">${Math.round(maintenance - 500).toLocaleString()}</div><div class="lbl">Lose 0.5 kg/week</div></div>
+    <div class="result-item"><div class="val">${maintenance.toLocaleString()}</div><div class="lbl">Maintain Weight</div></div>
+    <div class="result-item"><div class="val">${Math.round(maintenance + 500).toLocaleString()}</div><div class="lbl">Gain 0.5 kg/week</div></div>
+    <div class="result-item"><div class="val">${Math.round(bmr).toLocaleString()}</div><div class="lbl">Basal Metabolic Rate</div></div>
+  `;
+  document.getElementById('cal-result').classList.add('show');
+}
+
+// ===== LOAN =====
+function calcLoan() {
+  const P = parseFloat(document.getElementById('loan-amount').value);
+  const annualRate = parseFloat(document.getElementById('loan-rate').value);
+  const n = parseInt(document.getElementById('loan-term').value);
+  if (!P || !annualRate || !n) return alert('Please fill in all fields.');
+
+  const r = annualRate / 100 / 12;
+  const emi = P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const total = emi * n;
+  const interest = total - P;
+
+  const fmt = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('loan-monthly').textContent = fmt(emi);
+  document.getElementById('loan-grid').innerHTML = `
+    <div class="result-item"><div class="val">${fmt(emi)}</div><div class="lbl">Monthly Payment</div></div>
+    <div class="result-item"><div class="val">${fmt(total)}</div><div class="lbl">Total Payment</div></div>
+    <div class="result-item"><div class="val">${fmt(interest)}</div><div class="lbl">Total Interest Paid</div></div>
+    <div class="result-item"><div class="val">${((interest/P)*100).toFixed(1)}%</div><div class="lbl">Interest as % of Loan</div></div>
+  `;
+  document.getElementById('loan-result').classList.add('show');
+}
+
+// ===== AGE =====
+function calcAge() {
+  const dobVal = document.getElementById('age-dob').value;
+  const toVal = document.getElementById('age-to').value;
+  if (!dobVal) return alert('Please enter your date of birth.');
+
+  const dob = new Date(dobVal);
+  const to = toVal ? new Date(toVal) : new Date();
+
+  let years = to.getFullYear() - dob.getFullYear();
+  let months = to.getMonth() - dob.getMonth();
+  let days = to.getDate() - dob.getDate();
+
+  if (days < 0) { months--; days += new Date(to.getFullYear(), to.getMonth(), 0).getDate(); }
+  if (months < 0) { years--; months += 12; }
+
+  const totalDays = Math.floor((to - dob) / 86400000);
+  const totalWeeks = Math.floor(totalDays / 7);
+  const totalHours = totalDays * 24;
+  const nextBday = new Date(to.getFullYear(), dob.getMonth(), dob.getDate());
+  if (nextBday < to) nextBday.setFullYear(nextBday.getFullYear() + 1);
+  const daysToNextBday = Math.ceil((nextBday - to) / 86400000);
+
+  document.getElementById('age-val').textContent = `${years} yrs, ${months} mo, ${days} days`;
+  document.getElementById('age-grid').innerHTML = `
+    <div class="result-item"><div class="val">${totalDays.toLocaleString()}</div><div class="lbl">Total Days Lived</div></div>
+    <div class="result-item"><div class="val">${totalWeeks.toLocaleString()}</div><div class="lbl">Total Weeks</div></div>
+    <div class="result-item"><div class="val">${totalHours.toLocaleString()}</div><div class="lbl">Total Hours</div></div>
+    <div class="result-item"><div class="val">${daysToNextBday} days</div><div class="lbl">Until Next Birthday 🎂</div></div>
+  `;
+  document.getElementById('age-tip').innerHTML = `<strong>Fun fact:</strong> You've experienced approximately <strong>${Math.floor(totalDays/365*12)} full moons</strong> in your lifetime! 🌕`;
+  document.getElementById('age-result').classList.add('show');
+}
+// Set today's date by default
+window.addEventListener('load', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('age-to').value = today;
+});
+
+// ===== PERCENTAGE =====
+function calcP1() {
+  const pct = parseFloat(document.getElementById('p1-pct').value);
+  const num = parseFloat(document.getElementById('p1-num').value);
+  if (isNaN(pct) || isNaN(num)) return alert('Please fill both fields.');
+  const res = (pct / 100) * num;
+  document.getElementById('p1-val').textContent = res.toLocaleString('en-US', {maximumFractionDigits:4});
+  document.getElementById('p1-label').textContent = `${pct}% of ${num} = ${res}`;
+  document.getElementById('p1-result').classList.add('show');
+}
+function calcP2() {
+  const x = parseFloat(document.getElementById('p2-x').value);
+  const y = parseFloat(document.getElementById('p2-y').value);
+  if (isNaN(x) || isNaN(y) || y === 0) return alert('Please fill both fields (Y cannot be 0).');
+  const res = (x / y) * 100;
+  document.getElementById('p2-val').textContent = res.toFixed(4) + '%';
+  document.getElementById('p2-label').textContent = `${x} is ${res.toFixed(2)}% of ${y}`;
+  document.getElementById('p2-result').classList.add('show');
+}
+function calcP3() {
+  const from = parseFloat(document.getElementById('p3-from').value);
+  const to = parseFloat(document.getElementById('p3-to').value);
+  if (isNaN(from) || isNaN(to) || from === 0) return alert('Please fill both fields (From cannot be 0).');
+  const change = ((to - from) / Math.abs(from)) * 100;
+  const isIncrease = change >= 0;
+  document.getElementById('p3-val').textContent = (isIncrease ? '+' : '') + change.toFixed(2) + '%';
+  document.getElementById('p3-label').textContent = `${from} → ${to} is a ${Math.abs(change).toFixed(2)}% ${isIncrease ? 'increase' : 'decrease'}`;
+  document.getElementById('p3-result').classList.add('show');
+}
+
+// ===== TIP =====
+function calcTip() {
+  const bill = parseFloat(document.getElementById('tip-bill').value);
+  const people = parseInt(document.getElementById('tip-people').value) || 1;
+  const tipPct = parseInt(document.getElementById('tip-pct').value);
+  if (!bill) return alert('Please enter a bill amount.');
+
+  const tipAmt = bill * tipPct / 100;
+  const total = bill + tipAmt;
+  const perPerson = total / people;
+  const tipPP = tipAmt / people;
+
+  const fmt = v => '$' + v.toFixed(2);
+  document.getElementById('tip-val').textContent = fmt(perPerson);
+  document.getElementById('tip-grid').innerHTML = `
+    <div class="result-item"><div class="val">${fmt(bill)}</div><div class="lbl">Bill (Pre-tip)</div></div>
+    <div class="result-item"><div class="val">${fmt(tipAmt)}</div><div class="lbl">Total Tip (${tipPct}%)</div></div>
+    <div class="result-item"><div class="val">${fmt(total)}</div><div class="lbl">Total Bill</div></div>
+    <div class="result-item"><div class="val">${fmt(tipPP)}</div><div class="lbl">Tip Per Person</div></div>
+  `;
+  document.getElementById('tip-result').classList.add('show');
+}
+
+// ===== SAVINGS =====
+function calcSavings() {
+  const initial = parseFloat(document.getElementById('sav-initial').value) || 0;
+  const monthly = parseFloat(document.getElementById('sav-monthly').value) || 0;
+  const rate = parseFloat(document.getElementById('sav-rate').value);
+  const years = parseInt(document.getElementById('sav-years').value);
+  if (isNaN(rate)) return alert('Please enter an interest rate.');
+
+  const r = rate / 100 / 12;
+  const n = years * 12;
+  let total;
+  if (r === 0) {
+    total = initial + monthly * n;
+  } else {
+    total = initial * Math.pow(1+r,n) + monthly * (Math.pow(1+r,n)-1) / r;
+  }
+  const contributed = initial + monthly * n;
+  const earned = total - contributed;
+
+  const fmt = v => '$' + Math.round(v).toLocaleString();
+  document.getElementById('sav-val').textContent = fmt(total);
+  document.getElementById('sav-grid').innerHTML = `
+    <div class="result-item"><div class="val">${fmt(contributed)}</div><div class="lbl">Total Contributed</div></div>
+    <div class="result-item"><div class="val">${fmt(earned)}</div><div class="lbl">Interest Earned</div></div>
+    <div class="result-item"><div class="val">${((earned/contributed)*100).toFixed(0)}%</div><div class="lbl">Return on Savings</div></div>
+    <div class="result-item"><div class="val">${years} yrs</div><div class="lbl">Time Horizon</div></div>
+  `;
+  document.getElementById('sav-result').classList.add('show');
+}
+</script>
+</body>
+</html>
